@@ -1,8 +1,13 @@
-all:
-	6g libgeo.go
-	6g example.go
-	6l -o example example.6
-	rm libgeo.6 example.6
+include $(GOROOT)/src/Make.inc
 
-clean:
-	rm example
+TARG=libgeo
+GOFMT=gofmt -s -spaces=true -tabindent=false -tabwidth=4
+
+GOFILES=\
+	libgeo.go\
+
+include $(GOROOT)/src/Make.pkg
+
+format:
+	${GOFMT} -w libgeo.go
+	${GOFMT} -w example.go

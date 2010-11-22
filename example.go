@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"flag"
-	"./libgeo"
+	"libgeo"
 )
 
 func main() {
