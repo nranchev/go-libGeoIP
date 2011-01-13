@@ -11,7 +11,7 @@ func main() {
 
 	// Check the number of arguments
 	if flag.NArg() < 2 {
-		fmt.Printf("usage: main DBFILE IPADDRESS\n");
+		fmt.Printf("usage: main DBFILE IPADDRESS\n")
 		return
 	}
 
@@ -20,9 +20,9 @@ func main() {
 	ipAddr := flag.Arg(1)
 
 	// Load the database file, exit on failure
-	gi := libgeo.Load(dbFile)
-	if gi == nil {
-		fmt.Printf("GI IS NULL!\n");
+	gi, err := libgeo.Load(dbFile)
+	if err != nil {
+		fmt.Printf("Error: " + err.String() + "\n")
 		return
 	}
 
