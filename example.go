@@ -22,7 +22,7 @@ func main() {
 	// Load the database file, exit on failure
 	gi, err := libgeo.Load(dbFile)
 	if err != nil {
-		fmt.Printf("Error: " + err.String() + "\n")
+		fmt.Printf("Error: %s\n", err.String())
 		return
 	}
 
