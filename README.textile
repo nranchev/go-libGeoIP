@@ -30,7 +30,6 @@ h3. Supported Responses
 h3. To Do
 * Implement better error handling (report the error on load and lookups)
 * Better returns, country edition has only code and name (perhaps use interfaces)
-* Add better makefile for building and installation
 * Add test cases and benchmarking
 * Add support for more database formats
 
