@@ -151,7 +151,7 @@ func Load(filename string) (gi *GeoIP, err os.Error) {
 	if err != nil {
 		return
 	}
-	dbFile, err := os.Open(filename, os.O_RDONLY, OPEN_PERM)
+	dbFile, err := os.Open(filename)
 	if err != nil {
 		return
 	}
