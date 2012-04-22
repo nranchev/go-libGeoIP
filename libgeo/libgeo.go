@@ -32,6 +32,7 @@ package libgeo
 // Dependencies
 import (
 	"os"
+	"errors"
 )
 
 // Globals (const arrays that will be initialized inside init())
@@ -145,7 +146,7 @@ type Location struct {
 }
 
 // Load the database file in memory, detect the db format and setup the GeoIP struct
-func Load(filename string) (gi *GeoIP, err os.Error) {
+func Load(filename string) (gi *GeoIP, err error) {
 	// Try to open the requested file
 	dbInfo, err := os.Lstat(filename)
 	if err != nil {
@@ -158,7 +159,7 @@ func Load(filename string) (gi *GeoIP, err os.Error) {
 
 	// Copy the db into memory
 	gi = new(GeoIP)
-	gi.data = make([]byte, dbInfo.Size)
+	gi.data = make([]byte, dbInfo.Size())
 	dbFile.Read(gi.data)
 	dbFile.Close()
 
@@ -193,7 +194,7 @@ func Load(filename string) (gi *GeoIP, err os.Error) {
 
 	// Reject unsupported formats
 	if gi.dbType != DB_COUNTRY_EDITION && gi.dbType != DB_CITY_EDITION_REV0 && gi.dbType != DB_CITY_EDITION_REV1 {
-		err = os.NewError("Unsupported database format")
+		err = errors.New("Unsupported database format")
 		return
 	}
 

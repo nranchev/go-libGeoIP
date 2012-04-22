@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"flag"
-	"libgeo"
+	"go-libGeoIP/libgeo"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 	// Load the database file, exit on failure
 	gi, err := libgeo.Load(dbFile)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err.String())
+		fmt.Printf("Error: %v\n", err)
 		return
 	}
 
