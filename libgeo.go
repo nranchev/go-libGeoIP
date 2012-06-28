@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2010, Nikola Ranchev
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * 	- Redistributions of source code must retain the above copyright
@@ -14,7 +14,7 @@
  * 	- Neither the name of the <organization> nor the
  * 	  names of its contributors may be used to endorse or promote products
  * 	  derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,6 +31,7 @@ package libgeo
 
 // Dependencies
 import (
+	"errors"
 	"os"
 )
 
@@ -91,9 +92,8 @@ var (
 		"Namibia", "New Caledonia", "Niger", "Norfolk Island", "Nigeria", "Nicaragua",
 		"Netherlands", "Norway", "Nepal", "Nauru", "Niue", "New Zealand", "Oman", "Panama",
 		"Peru", "French Polynesia", "Papua New Guinea", "Philippines", "Pakistan",
-		"Poland", "Saint Pierre and Miquelon", "Pitcairn Islands", "Puerto Rico", "" +
-			"Palestinian Territory",
-		"Portugal", "Palau", "Paraguay", "Qatar",
+		"Poland", "Saint Pierre and Miquelon", "Pitcairn Islands", "Puerto Rico",
+		"Palestinian Territory", "Portugal", "Palau", "Paraguay", "Qatar",
 		"Reunion", "Romania", "Russian Federation", "Rwanda", "Saudi Arabia",
 		"Solomon Islands", "Seychelles", "Sudan", "Sweden", "Singapore", "Saint Helena",
 		"Slovenia", "Svalbard and Jan Mayen", "Slovakia", "Sierra Leone", "San Marino",
@@ -113,18 +113,17 @@ var (
 
 // Constants
 const (
-	MAX_RECORD_LENGTH       = 4
-	STANDARD_RECORD_LENGTH  = 3
-	COUNTRY_BEGIN           = 16776960
-	STRUCTURE_INFO_MAX_SIZE = 20
-	FULL_RECORD_LENGTH      = 60
-	SEGMENT_RECORD_LENGTH   = 3
-	OPEN_PERM               = 0666
+	maxRecordLength      = 4
+	standardRecordLength = 3
+	countryBegin         = 16776960
+	structureInfoMaxSize = 20
+	fullRecordLength     = 60
+	segmentRecordLength  = 3
 
 	// DB Types
-	DB_COUNTRY_EDITION   = byte(1)
-	DB_CITY_EDITION_REV0 = byte(6)
-	DB_CITY_EDITION_REV1 = byte(2)
+	dbCountryEdition  = byte(1)
+	dbCityEditionRev0 = byte(6)
+	dbCityEditionRev1 = byte(2)
 )
 
 // These are some structs
@@ -145,7 +144,7 @@ type Location struct {
 }
 
 // Load the database file in memory, detect the db format and setup the GeoIP struct
-func Load(filename string) (gi *GeoIP, err os.Error) {
+func Load(filename string) (gi *GeoIP, err error) {
 	// Try to open the requested file
 	dbInfo, err := os.Lstat(filename)
 	if err != nil {
@@ -158,27 +157,27 @@ func Load(filename string) (gi *GeoIP, err os.Error) {
 
 	// Copy the db into memory
 	gi = new(GeoIP)
-	gi.data = make([]byte, dbInfo.Size)
+	gi.data = make([]byte, dbInfo.Size())
 	dbFile.Read(gi.data)
 	dbFile.Close()
 
 	// Check the database type
-	gi.dbType = DB_COUNTRY_EDITION           // Default the database to country edition
-	gi.databaseSegment = COUNTRY_BEGIN       // Default to country DB
-	gi.recordLength = STANDARD_RECORD_LENGTH // Default to country DB
+	gi.dbType = dbCountryEdition           // Default the database to country edition
+	gi.databaseSegment = countryBegin      // Default to country DB
+	gi.recordLength = standardRecordLength // Default to country DB
 
 	// Search for the DB type headers
 	delim := make([]byte, 3)
-	for i := 0; i < STRUCTURE_INFO_MAX_SIZE; i++ {
+	for i := 0; i < structureInfoMaxSize; i++ {
 		delim = gi.data[len(gi.data)-i-3-1 : len(gi.data)-i-1]
 		if int8(delim[0]) == -1 && int8(delim[1]) == -1 && int8(delim[2]) == -1 {
 			gi.dbType = gi.data[len(gi.data)-i-1]
 			// If we detect city edition set the correct segment offset
-			if gi.dbType == DB_CITY_EDITION_REV1 || gi.dbType == DB_CITY_EDITION_REV0 {
-				buf := make([]byte, SEGMENT_RECORD_LENGTH)
+			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev0 {
+				buf := make([]byte, segmentRecordLength)
 				buf = gi.data[len(gi.data)-i-1+1 : len(gi.data)-i-1+4]
 				gi.databaseSegment = 0
-				for j := 0; j < SEGMENT_RECORD_LENGTH; j++ {
+				for j := 0; j < segmentRecordLength; j++ {
 					gi.databaseSegment += (int(buf[j]) << uint8(j*8))
 				}
 			}
@@ -192,8 +191,8 @@ func Load(filename string) (gi *GeoIP, err os.Error) {
 	}
 
 	// Reject unsupported formats
-	if gi.dbType != DB_COUNTRY_EDITION && gi.dbType != DB_CITY_EDITION_REV0 && gi.dbType != DB_CITY_EDITION_REV1 {
-		err = os.NewError("Unsupported database format")
+	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev0 {
+		err = errors.New("Unsupported database format")
 		return
 	}
 
@@ -211,8 +210,8 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	offset := gi.lookupByIPNum(ipNum)
 
 	// Check if the country was found
-	if gi.dbType == DB_COUNTRY_EDITION && offset-COUNTRY_BEGIN == 0 ||
-		gi.dbType != DB_COUNTRY_EDITION && gi.databaseSegment == offset {
+	if gi.dbType == dbCountryEdition && offset-countryBegin == 0 ||
+		gi.dbType != dbCountryEdition && gi.databaseSegment == offset {
 		return nil
 	}
 
@@ -220,17 +219,17 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	location := new(Location)
 
 	// If the database is country
-	if gi.dbType == DB_COUNTRY_EDITION {
-		location.CountryCode = countryCode[offset-COUNTRY_BEGIN]
-		location.CountryName = countryName[offset-COUNTRY_BEGIN]
+	if gi.dbType == dbCountryEdition {
+		location.CountryCode = countryCode[offset-countryBegin]
+		location.CountryName = countryName[offset-countryBegin]
 
 		return location
 	}
 
 	// Find the max record length
 	recPointer := offset + (2*gi.recordLength-1)*gi.databaseSegment
-	recordEnd := recPointer + FULL_RECORD_LENGTH
-	if len(gi.data)-recPointer < FULL_RECORD_LENGTH {
+	recordEnd := recPointer + fullRecordLength
+	if len(gi.data)-recPointer < fullRecordLength {
 		recordEnd = len(gi.data)
 	}
 
@@ -287,11 +286,11 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 
 // Read the database and return record position
 func (gi *GeoIP) lookupByIPNum(ip uint32) int {
-	buf := make([]byte, 2*MAX_RECORD_LENGTH)
+	buf := make([]byte, 2*maxRecordLength)
 	x := make([]int, 2)
 	offset := 0
 	for depth := 31; depth >= 0; depth-- {
-		for i := 0; i < 2*MAX_RECORD_LENGTH; i++ {
+		for i := 0; i < 2*maxRecordLength; i++ {
 			buf[i] = gi.data[(2*gi.recordLength*offset)+i]
 		}
 		for i := 0; i < 2; i++ {
