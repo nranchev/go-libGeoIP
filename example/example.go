@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"github.com/nranchev/go-libGeoIP"
 )
 
