@@ -173,7 +173,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 		if int8(delim[0]) == -1 && int8(delim[1]) == -1 && int8(delim[2]) == -1 {
 			gi.dbType = gi.data[len(gi.data)-i-1]
 			// If we detect city edition set the correct segment offset
-			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev0 {
+			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev1 {
 				buf := make([]byte, segmentRecordLength)
 				buf = gi.data[len(gi.data)-i-1+1 : len(gi.data)-i-1+4]
 				gi.databaseSegment = 0
@@ -191,7 +191,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 	}
 
 	// Reject unsupported formats
-	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev0 {
+	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev1 {
 		err = errors.New("Unsupported database format")
 		return
 	}
