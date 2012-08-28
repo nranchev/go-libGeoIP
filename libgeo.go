@@ -1,7 +1,7 @@
 /**
  * libgeo.go
  *
- * Copyright (c) 2010, Nikola Ranchev
+ * Copyright (c) 2010, Nikola Ranchev, Torbit (www.torbit.com)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import (
 
 // Globals (const arrays that will be initialized inside init())
 var (
-	countryCode = []string{
+	countryCode2 = []string{
 		"--", "AP", "EU", "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AN", "AO", "AQ", "AR",
 		"AS", "AT", "AU", "AW", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ",
 		"BM", "BN", "BO", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF",
@@ -56,7 +56,37 @@ var (
 		"TH", "TJ", "TK", "TM", "TN", "TO", "TL", "TR", "TT", "TV", "TW", "TZ", "UA", "UG",
 		"UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE",
 		"YT", "RS", "ZA", "ZM", "ME", "ZW", "A1", "A2", "O1", "AX", "GG", "IM", "JE", "BL",
-		"MF"}
+		"MF", "BQ"}
+
+	countryCode3 = []string{
+		"--", "AP", "EU", "AND", "ARE", "AFG", "ATG", "AIA", "ALB", "ARM", "CUW",
+		"AGO", "ATA", "ARG", "ASM", "AUT", "AUS", "ABW", "AZE", "BIH", "BRB",
+		"BGD", "BEL", "BFA", "BGR", "BHR", "BDI", "BEN", "BMU", "BRN", "BOL",
+		"BRA", "BHS", "BTN", "BVT", "BWA", "BLR", "BLZ", "CAN", "CCK", "COD",
+		"CAF", "COG", "CHE", "CIV", "COK", "CHL", "CMR", "CHN", "COL", "CRI",
+		"CUB", "CPV", "CXR", "CYP", "CZE", "DEU", "DJI", "DNK", "DMA", "DOM",
+		"DZA", "ECU", "EST", "EGY", "ESH", "ERI", "ESP", "ETH", "FIN", "FJI",
+		"FLK", "FSM", "FRO", "FRA", "SXM", "GAB", "GBR", "GRD", "GEO", "GUF",
+		"GHA", "GIB", "GRL", "GMB", "GIN", "GLP", "GNQ", "GRC", "SGS", "GTM",
+		"GUM", "GNB", "GUY", "HKG", "HMD", "HND", "HRV", "HTI", "HUN", "IDN",
+		"IRL", "ISR", "IND", "IOT", "IRQ", "IRN", "ISL", "ITA", "JAM", "JOR",
+		"JPN", "KEN", "KGZ", "KHM", "KIR", "COM", "KNA", "PRK", "KOR", "KWT",
+		"CYM", "KAZ", "LAO", "LBN", "LCA", "LIE", "LKA", "LBR", "LSO", "LTU",
+		"LUX", "LVA", "LBY", "MAR", "MCO", "MDA", "MDG", "MHL", "MKD", "MLI",
+		"MMR", "MNG", "MAC", "MNP", "MTQ", "MRT", "MSR", "MLT", "MUS", "MDV",
+		"MWI", "MEX", "MYS", "MOZ", "NAM", "NCL", "NER", "NFK", "NGA", "NIC",
+		"NLD", "NOR", "NPL", "NRU", "NIU", "NZL", "OMN", "PAN", "PER", "PYF",
+		"PNG", "PHL", "PAK", "POL", "SPM", "PCN", "PRI", "PSE", "PRT", "PLW",
+		"PRY", "QAT", "REU", "ROU", "RUS", "RWA", "SAU", "SLB", "SYC", "SDN",
+		"SWE", "SGP", "SHN", "SVN", "SJM", "SVK", "SLE", "SMR", "SEN", "SOM",
+		"SUR", "STP", "SLV", "SYR", "SWZ", "TCA", "TCD", "ATF", "TGO", "THA",
+		"TJK", "TKL", "TKM", "TUN", "TON", "TLS", "TUR", "TTO", "TUV", "TWN",
+		"TZA", "UKR", "UGA", "UMI", "USA", "URY", "UZB", "VAT", "VCT", "VEN",
+		"VGB", "VIR", "VNM", "VUT", "WLF", "WSM", "YEM", "MYT", "SRB", "ZAF",
+		"ZMB", "MNE", "ZWE", "A1", "A2", "O1", "ALA", "GGY", "IMN", "JEY",
+		"BLM", "MAF", "BES",
+	}
+
 	countryName = []string{
 		"N/A", "Asia/Pacific Region", "Europe", "Andorra", "United Arab Emirates",
 		"Afghanistan", "Antigua and Barbuda", "Anguilla", "Albania", "Armenia",
@@ -108,7 +138,37 @@ var (
 		"Vanuatu", "Wallis and Futuna", "Samoa", "Yemen", "Mayotte", "Serbia",
 		"South Africa", "Zambia", "Montenegro", "Zimbabwe", "Anonymous Proxy",
 		"Satellite Provider", "Other", "Aland Islands", "Guernsey", "Isle of Man", "Jersey",
-		"Saint Barthelemy", "Saint Martin"}
+		"Saint Barthelemy", "Saint Martin", "Bonaire, Saint Eustatius and Saba",
+	}
+
+	countryContinentCode = []string{
+		"--", "AS", "EU", "EU", "AS", "AS", "NA", "NA", "EU", "AS", "NA",
+		"AF", "AN", "SA", "OC", "EU", "OC", "NA", "AS", "EU", "NA",
+		"AS", "EU", "AF", "EU", "AS", "AF", "AF", "NA", "AS", "SA",
+		"SA", "NA", "AS", "AN", "AF", "EU", "NA", "NA", "AS", "AF",
+		"AF", "AF", "EU", "AF", "OC", "SA", "AF", "AS", "SA", "NA",
+		"NA", "AF", "AS", "AS", "EU", "EU", "AF", "EU", "NA", "NA",
+		"AF", "SA", "EU", "AF", "AF", "AF", "EU", "AF", "EU", "OC",
+		"SA", "OC", "EU", "EU", "NA", "AF", "EU", "NA", "AS", "SA",
+		"AF", "EU", "NA", "AF", "AF", "NA", "AF", "EU", "AN", "NA",
+		"OC", "AF", "SA", "AS", "AN", "NA", "EU", "NA", "EU", "AS",
+		"EU", "AS", "AS", "AS", "AS", "AS", "EU", "EU", "NA", "AS",
+		"AS", "AF", "AS", "AS", "OC", "AF", "NA", "AS", "AS", "AS",
+		"NA", "AS", "AS", "AS", "NA", "EU", "AS", "AF", "AF", "EU",
+		"EU", "EU", "AF", "AF", "EU", "EU", "AF", "OC", "EU", "AF",
+		"AS", "AS", "AS", "OC", "NA", "AF", "NA", "EU", "AF", "AS",
+		"AF", "NA", "AS", "AF", "AF", "OC", "AF", "OC", "AF", "NA",
+		"EU", "EU", "AS", "OC", "OC", "OC", "AS", "NA", "SA", "OC",
+		"OC", "AS", "AS", "EU", "NA", "OC", "NA", "AS", "EU", "OC",
+		"SA", "AS", "AF", "EU", "EU", "AF", "AS", "OC", "AF", "AF",
+		"EU", "AS", "AF", "EU", "EU", "EU", "AF", "EU", "AF", "AF",
+		"SA", "AF", "NA", "AS", "AF", "NA", "AF", "AN", "AF", "AS",
+		"AS", "OC", "AS", "AF", "OC", "AS", "EU", "NA", "OC", "AS",
+		"AF", "EU", "AF", "OC", "NA", "SA", "AS", "EU", "NA", "SA",
+		"NA", "NA", "AS", "OC", "OC", "OC", "AS", "AF", "EU", "AF",
+		"AF", "EU", "AF", "--", "--", "--", "EU", "EU", "EU", "EU",
+		"NA", "NA", "NA",
+	}
 )
 
 // Constants
@@ -134,13 +194,15 @@ type GeoIP struct {
 	data            []byte // All of the data from the DB file
 }
 type Location struct {
-	CountryCode string // If country ed. only country info is filled
-	CountryName string // If country ed. only country info is filled
-	Region      string
-	City        string
-	PostalCode  string
-	Latitude    float32
-	Longitude   float32
+	CountryCode   string // If country ed. only country info is filled
+	CountryCode3  string // If country ed. only country info is filled
+	CountryName   string // If country ed. only country info is filled
+	ContinentCode string // If country ed. only country info is filled
+	Region        string
+	City          string
+	PostalCode    string
+	Latitude      float32
+	Longitude     float32
 }
 
 // Load the database file in memory, detect the db format and setup the GeoIP struct
@@ -151,6 +213,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 		return
 	}
 	dbFile, err := os.Open(filename)
+	defer dbFile.Close()
 	if err != nil {
 		return
 	}
@@ -159,7 +222,6 @@ func Load(filename string) (gi *GeoIP, err error) {
 	gi = new(GeoIP)
 	gi.data = make([]byte, dbInfo.Size())
 	dbFile.Read(gi.data)
-	dbFile.Close()
 
 	// Check the database type
 	gi.dbType = dbCountryEdition           // Default the database to country edition
@@ -173,7 +235,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 		if int8(delim[0]) == -1 && int8(delim[1]) == -1 && int8(delim[2]) == -1 {
 			gi.dbType = gi.data[len(gi.data)-i-1]
 			// If we detect city edition set the correct segment offset
-			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev0 {
+			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev1 {
 				buf := make([]byte, segmentRecordLength)
 				buf = gi.data[len(gi.data)-i-1+1 : len(gi.data)-i-1+4]
 				gi.databaseSegment = 0
@@ -191,7 +253,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 	}
 
 	// Reject unsupported formats
-	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev0 {
+	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev1 {
 		err = errors.New("Unsupported database format")
 		return
 	}
@@ -220,9 +282,11 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 
 	// If the database is country
 	if gi.dbType == dbCountryEdition {
-		location.CountryCode = countryCode[offset-countryBegin]
-		location.CountryName = countryName[offset-countryBegin]
-
+		position := offset - countryBegin
+		location.CountryCode = countryCode2[position]
+		location.CountryCode3 = countryCode3[position]
+		location.CountryName = countryName[position]
+		location.ContinentCode = countryContinentCode[position]
 		return location
 	}
 
@@ -234,8 +298,11 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	}
 
 	// Read the country code/name first
-	location.CountryCode = countryCode[gi.data[recPointer]]
-	location.CountryName = countryName[gi.data[recPointer]]
+	position := gi.data[recPointer]
+	location.CountryCode = countryCode2[position]
+	location.CountryCode3 = countryCode3[position]
+	location.CountryName = countryName[position]
+	location.ContinentCode = countryContinentCode[position]
 	readLen := 1
 	recPointer += 1
 
@@ -318,6 +385,16 @@ func (gi *GeoIP) lookupByIPNum(ip uint32) int {
 	return 0
 }
 
+//Development utility: Test lookup arrays for obvious size inconsistancy
+func internalDataChecks() (bool, error) {
+	if len(countryCode2) != len(countryCode3) ||
+		len(countryCode3) != len(countryName) ||
+		len(countryName) != len(countryContinentCode) {
+		return false, errors.New("Internal consistancy error, lookup table size mismatch")
+	}
+	return true, nil
+}
+
 // Convert ip address to an int representation
 func AddrToNum(ip string) uint32 {
 	octet := uint32(0)
@@ -351,3 +428,4 @@ func AddrToNum(ip string) uint32 {
 	ipnum <<= 8
 	return uint32(ipnum + octet)
 }
+
