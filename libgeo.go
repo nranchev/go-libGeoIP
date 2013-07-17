@@ -283,10 +283,12 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	// If the database is country
 	if gi.dbType == dbCountryEdition {
 		position := offset - countryBegin
-		location.CountryCode = countryCode2[position]
-		location.CountryCode3 = countryCode3[position]
-		location.CountryName = countryName[position]
-		location.ContinentCode = countryContinentCode[position]
+		if int(position) < len(countryCode2) {
+			location.CountryCode = countryCode2[position]
+			location.CountryCode3 = countryCode3[position]
+			location.CountryName = countryName[position]
+			location.ContinentCode = countryContinentCode[position]
+		}
 		return location
 	}
 
@@ -299,10 +301,12 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 
 	// Read the country code/name first
 	position := gi.data[recPointer]
-	location.CountryCode = countryCode2[position]
-	location.CountryCode3 = countryCode3[position]
-	location.CountryName = countryName[position]
-	location.ContinentCode = countryContinentCode[position]
+	if int(position) < len(countryCode2) {
+		location.CountryCode = countryCode2[position]
+		location.CountryCode3 = countryCode3[position]
+		location.CountryName = countryName[position]
+		location.ContinentCode = countryContinentCode[position]
+	}
 	readLen := 1
 	recPointer += 1
 
@@ -428,4 +432,3 @@ func AddrToNum(ip string) uint32 {
 	ipnum <<= 8
 	return uint32(ipnum + octet)
 }
-
