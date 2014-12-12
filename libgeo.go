@@ -31,8 +31,14 @@ package libgeo
 
 // Dependencies
 import (
+	"bytes"
 	"errors"
+	"io/ioutil"
 	"os"
+
+	// for decoding ISO-8859-1
+	"code.google.com/p/go-charset/charset"
+	_ "code.google.com/p/go-charset/data"
 )
 
 // Globals (const arrays that will be initialized inside init())
@@ -205,6 +211,18 @@ func (gi *GeoIP) GetLocationByIP(ip string) *Location {
 	return gi.GetLocationByIPNum(AddrToNum(ip))
 }
 
+func getUTF8String(b []byte) string {
+	cr, err := charset.NewReader("ISO-8859-1", bytes.NewBuffer(b))
+	if err != nil {
+		return string(b)
+	}
+	bb, err := ioutil.ReadAll(cr)
+	if err != nil {
+		return string(b)
+	}
+	return string(bb)
+}
+
 // Lookup by IP number and return location
 func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	// Perform the lookup on the database to see if the record is found
@@ -245,7 +263,7 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 		recPointer+readLen < recordEnd; readLen++ {
 	}
 	if readLen != 0 {
-		location.Region = string(gi.data[recPointer : recPointer+readLen])
+		location.Region = getUTF8String(gi.data[recPointer : recPointer+readLen])
 	}
 	recPointer += readLen + 1
 
@@ -254,7 +272,7 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 		recPointer+readLen < recordEnd; readLen++ {
 	}
 	if readLen != 0 {
-		location.City = string(gi.data[recPointer : recPointer+readLen])
+		location.City = getUTF8String(gi.data[recPointer : recPointer+readLen])
 	}
 	recPointer += readLen + 1
 
@@ -263,7 +281,7 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 		recPointer+readLen < recordEnd; readLen++ {
 	}
 	if readLen != 0 {
-		location.PostalCode = string(gi.data[recPointer : recPointer+readLen])
+		location.PostalCode = getUTF8String(gi.data[recPointer : recPointer+readLen])
 	}
 	recPointer += readLen + 1
 
