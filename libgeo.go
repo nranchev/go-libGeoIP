@@ -32,6 +32,7 @@ package libgeo
 // Dependencies
 import (
 	"errors"
+	"fmt"
 	"os"
 )
 
@@ -120,19 +121,37 @@ const (
 	structureInfoMaxSize = 20
 	fullRecordLength     = 60
 	segmentRecordLength  = 3
-
-	// DB Types
-	dbCountryEdition  = byte(1)
-	dbCityEditionRev0 = byte(6)
-	dbCityEditionRev1 = byte(2)
 )
+
+// Supported GeoLite database types.
+const (
+	CountryEdition  = DatabaseType(1)
+	CityEditionRev0 = DatabaseType(6)
+	CityEditionRev1 = DatabaseType(2)
+)
+
+type DatabaseType byte
+
+// Returns a string representation of the DatabaseType.
+func (t DatabaseType) String() string {
+	switch t {
+	default:
+		return fmt.Sprintf("Unknown %d", t)
+	case CountryEdition:
+		return "GeoLite Country"
+	case CityEditionRev0:
+		return "GeoLite City Rev 0"
+	case CityEditionRev1:
+		return "GeoLite City Rev 1"
+	}
+}
 
 // These are some structs
 type GeoIP struct {
-	databaseSegment int    // No need to make an array of size 1
-	recordLength    int    // Set to one of the constants above
-	dbType          byte   // Store the database type
-	data            []byte // All of the data from the DB file
+	databaseSegment int          // No need to make an array of size 1
+	recordLength    int          // Set to one of the constants above
+	dbType          DatabaseType // Store the database type
+	data            []byte       // All of the data from the DB file
 }
 type Location struct {
 	CountryCode string // If country ed. only country info is filled
@@ -163,7 +182,7 @@ func Load(filename string) (gi *GeoIP, err error) {
 	dbFile.Close()
 
 	// Check the database type
-	gi.dbType = dbCountryEdition           // Default the database to country edition
+	gi.dbType = CountryEdition             // Default the database to country edition
 	gi.databaseSegment = countryBegin      // Default to country DB
 	gi.recordLength = standardRecordLength // Default to country DB
 
@@ -172,9 +191,9 @@ func Load(filename string) (gi *GeoIP, err error) {
 	for i := 0; i < structureInfoMaxSize; i++ {
 		delim = gi.data[len(gi.data)-i-3-1 : len(gi.data)-i-1]
 		if int8(delim[0]) == -1 && int8(delim[1]) == -1 && int8(delim[2]) == -1 {
-			gi.dbType = gi.data[len(gi.data)-i-1]
+			gi.dbType = DatabaseType(gi.data[len(gi.data)-i-1])
 			// If we detect city edition set the correct segment offset
-			if gi.dbType == dbCityEditionRev0 || gi.dbType == dbCityEditionRev1 {
+			if gi.dbType == CityEditionRev0 || gi.dbType == CityEditionRev1 {
 				buf := make([]byte, segmentRecordLength)
 				buf = gi.data[len(gi.data)-i-1+1 : len(gi.data)-i-1+4]
 				gi.databaseSegment = 0
@@ -192,12 +211,17 @@ func Load(filename string) (gi *GeoIP, err error) {
 	}
 
 	// Reject unsupported formats
-	if gi.dbType != dbCountryEdition && gi.dbType != dbCityEditionRev0 && gi.dbType != dbCityEditionRev1 {
+	if gi.dbType != CountryEdition && gi.dbType != CityEditionRev0 && gi.dbType != CityEditionRev1 {
 		err = errors.New("Unsupported database format")
 		return
 	}
 
 	return
+}
+
+// GetDatabaseType returns the type of the database loaded.
+func (gi *GeoIP) GetDatabaseType() DatabaseType {
+	return gi.dbType
 }
 
 // Lookup by IP address and return location
@@ -211,8 +235,8 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	offset := gi.lookupByIPNum(ipNum)
 
 	// Check if the country was found
-	if gi.dbType == dbCountryEdition && offset-countryBegin == 0 ||
-		gi.dbType != dbCountryEdition && gi.databaseSegment == offset {
+	if gi.dbType == CountryEdition && offset-countryBegin == 0 ||
+		gi.dbType != CountryEdition && gi.databaseSegment == offset {
 		return nil
 	}
 
@@ -220,7 +244,7 @@ func (gi *GeoIP) GetLocationByIPNum(ipNum uint32) *Location {
 	location := new(Location)
 
 	// If the database is country
-	if gi.dbType == dbCountryEdition {
+	if gi.dbType == CountryEdition {
 		location.CountryCode = countryCode[offset-countryBegin]
 		location.CountryName = countryName[offset-countryBegin]
 
