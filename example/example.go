@@ -26,6 +26,8 @@ func main() {
 		return
 	}
 
+	fmt.Printf("Database Type: %s\n", gi.GetDatabaseType())
+
 	// Lookup the IP and display the details if country is found
 	loc := gi.GetLocationByIP(ipAddr)
 	if loc != nil {
