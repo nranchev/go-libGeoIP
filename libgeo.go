@@ -32,7 +32,7 @@ package libgeo
 // Dependencies
 import (
 	"errors"
-	"os"
+	"io/ioutil"
 )
 
 // Globals (const arrays that will be initialized inside init())
@@ -144,24 +144,9 @@ type Location struct {
 	Longitude   float32
 }
 
-// Load the database file in memory, detect the db format and setup the GeoIP struct
-func Load(filename string) (gi *GeoIP, err error) {
-	// Try to open the requested file
-	dbInfo, err := os.Lstat(filename)
-	if err != nil {
-		return
-	}
-	dbFile, err := os.Open(filename)
-	if err != nil {
-		return
-	}
-
-	// Copy the db into memory
+func LoadData(data []byte) (gi *GeoIP, err error) {
 	gi = new(GeoIP)
-	gi.data = make([]byte, dbInfo.Size())
-	dbFile.Read(gi.data)
-	dbFile.Close()
-
+	gi.data = data
 	// Check the database type
 	gi.dbType = dbCountryEdition           // Default the database to country edition
 	gi.databaseSegment = countryBegin      // Default to country DB
@@ -198,6 +183,16 @@ func Load(filename string) (gi *GeoIP, err error) {
 	}
 
 	return
+}
+
+// Load the database file in memory, detect the db format and setup the GeoIP struct
+func Load(filename string) (gi *GeoIP, err error) {
+	// Copy the db into memory
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, errors.New(err.Error())
+	}
+	return LoadData(data)
 }
 
 // Lookup by IP address and return location
